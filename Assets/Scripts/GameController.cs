@@ -15,10 +15,6 @@ public class GameController : MonoBehaviour
 	[SerializeField]
 	private int maxWaves = 16;
 	[SerializeField]
-	private float minRadius = 1f;
-	[SerializeField]
-	private float maxRadius = 5f;
-	[SerializeField]
 	private float spawnTimer = 5f;
 	[SerializeField]
 	private float minGapAngle = 30f;
@@ -82,9 +78,10 @@ public class GameController : MonoBehaviour
 	void UpdatePositions ()
 	{
 		//Update the waves
+		float currentTime = Time.deltaTime;
 		for (int i = 0; i < wavesCount; i++) {
 			WaveController waveController = waves [i].GetComponent<WaveController> ();
-			waveController.IncreaseRadius (currentSpeed * Time.deltaTime);
+			waveController.IncreaseRadius (currentSpeed * currentTime);
 		}
 
 		//Remove Waves outside the screen
@@ -113,12 +110,15 @@ public class GameController : MonoBehaviour
 
 	void RemoveWave(int pos) {
 		//Move every wafe after it forward
+
+		Destroy (waves [pos]);
+		wavesCount--;
 		foreach(GameObject p in players){
 			if (p.GetComponent<PlayerController> ().GetWaveId () == pos) {
 				Destroy (p);
 			}
 		
-			for (int j = pos + 1; j < wavesCount; j++) {
+			for (int j = pos + 1; j <= wavesCount; j++) {
 				waves [j - 1] = waves [j];
 			}
 		}

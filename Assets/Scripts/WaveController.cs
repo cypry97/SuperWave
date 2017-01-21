@@ -30,8 +30,6 @@ public class WaveController : MonoBehaviour
 					Vector3 v = new Vector3 (Mathf.Cos (angle), Mathf.Sin (angle), 0f);
 					wavePoints [i] = (GameObject)Instantiate (wavePointPrefab, v * radius, Quaternion.identity);
 					wavePoints [i].transform.parent = gameObject.transform;
-				} else {
-					//Debug.Log ("Got here!");
 				}
 			} else {
 				Vector3 v = new Vector3 (Mathf.Cos (angle), Mathf.Sin (angle), 0f);
@@ -61,16 +59,7 @@ public class WaveController : MonoBehaviour
 
 	public void Draw ()
 	{
-		//int resolution = 8 + (int)(radius*Mathf.PI * 8f);
-		//Debug.Log (resolution);
 		float fResolution = (float)resolution;
-
-		//foreach (var p in wavePoints) {
-		//if (p) {
-		//Destroy (p);
-		//}
-		//}
-		//wavePoints = new GameObject[2 * resolution];
 
 		for (int i = 0; i < resolution; i++) {
 			if (wavePoints [i]) {
@@ -78,7 +67,6 @@ public class WaveController : MonoBehaviour
 				Vector3 v = new Vector3 (Mathf.Cos (angle), Mathf.Sin (angle), 0f);
 
 				wavePoints [i].transform.position = v * radius;
-				//wavePoints[i+1] = (GameObject)Instantiate (wavePointPrefab, v * (radius - thickness), Quaternion.identity); //Debug
 			}
 		}
 	}
@@ -106,9 +94,9 @@ public class WaveController : MonoBehaviour
 
 	public bool checkPosition (float angle)
 	{
-		Debug.Log (angle);
 		foreach (Vector2 gap in gaps) {
 			if (angle >= gap.x && angle <= gap.y) {
+				Debug.Log (gap.x.ToString () + " " + angle.ToString () + " " + gap.y.ToString ());
 				return true;
 			}
 		}
