@@ -89,8 +89,6 @@ public class GameController : MonoBehaviour
 	void UpdatePositions ()
 	{
 		//Update the waves
-		Debug.Log(wavesCount);
-
 		float currentTime = Time.deltaTime;
 		for (int i = 0; i < wavesCount; i++) {
 			WaveController waveController = waves [i].GetComponent<WaveController> ();
@@ -128,11 +126,13 @@ public class GameController : MonoBehaviour
 		Destroy (waves [pos]);
 		wavesCount--;
 		foreach (GameObject p in players) {
-			int waveId = p.GetComponent<PlayerController> ().GetWaveId ();
-			if (waveId == pos) {
-				Destroy (p);
-			} else if (waveId >= pos) {
-				p.GetComponent<PlayerController> ().SetWaveId (waveId - 1);
+			if (p) {
+				int waveId = p.GetComponent<PlayerController> ().GetWaveId ();
+				if (waveId == pos) {
+					Destroy (p);
+				} else if (waveId >= pos) {
+					p.GetComponent<PlayerController> ().SetWaveId (waveId - 1);
+				}
 			}
 		}
 		for (int j = pos + 1; j <= wavesCount; j++) {

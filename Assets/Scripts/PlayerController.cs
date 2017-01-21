@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour
 	public void Initialize (int wId, float ang, string iN)
 	{
 		waveId = wId;
-		angle = ang;
+		angle = ang * Mathf.PI / 180f;
 		inputName = iN;
 	}
 
