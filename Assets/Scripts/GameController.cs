@@ -47,10 +47,14 @@ public class GameController : MonoBehaviour
 		lastSpawnTime = Time.time;
 		wavesCount = 0;
 		//Spawn players on the map
-		players = new GameObject[1];
+		players = new GameObject[2];
 		players [0] = (GameObject)Instantiate (player1Prefab, new Vector3 (), Quaternion.identity);
 		PlayerController playerController = players [0].GetComponent<PlayerController> ();
-		playerController.Initialize (0, 0f);
+		playerController.Initialize (0, 0f, "Player1");
+
+		players [1] = (GameObject)Instantiate (player2Prefab, new Vector3 (), Quaternion.identity);
+		playerController = players [1].GetComponent<PlayerController> ();
+		playerController.Initialize (0, 180f, "Player2");
 
 		//Spawn waves
 		waves = new GameObject[maxWaves];
