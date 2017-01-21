@@ -18,10 +18,10 @@ public class GameController : MonoBehaviour
 	private float spawnTimer = 5f;
 	[SerializeField]
 	private float minGapAngle = 30f;
-//in degrees
+	//in degrees
 	[SerializeField]
 	private float maxGapAngle = 60f;
-//in degrees
+	//in degrees
 
 	[SerializeField]
 	private GameObject player1Prefab;
@@ -97,7 +97,7 @@ public class GameController : MonoBehaviour
 				PlayerController playerController = p.GetComponent<PlayerController> ();
 				float angle = playerController.getAngle ();
 				WaveController waveController = waves [playerController.GetWaveId ()].GetComponent<WaveController> ();
-					if (waveController.checkPosition (angle) && playerController.GetWaveId () < wavesCount - 1) {
+				if (waveController.checkPosition (angle) && playerController.GetWaveId () < wavesCount - 1) {
 					playerController.SetWaveId (playerController.GetWaveId () + 1);
 					waveController = waves [playerController.GetWaveId ()].GetComponent<WaveController> ();
 				}
@@ -108,19 +108,22 @@ public class GameController : MonoBehaviour
 
 	}
 
-	void RemoveWave(int pos) {
+	void RemoveWave (int pos)
+	{
 		//Move every wafe after it forward
 
 		Destroy (waves [pos]);
 		wavesCount--;
-		foreach(GameObject p in players){
-			if (p.GetComponent<PlayerController> ().GetWaveId () == pos) {
+		foreach (GameObject p in players) {
+			int waveId = p.GetComponent<PlayerController> ().GetWaveId ();
+			if (waveId == pos) {
 				Destroy (p);
+			} else if (waveId >= pos) {
+				p.GetComponent<PlayerController> ().SetWaveId (waveId - 1);
 			}
-		
-			for (int j = pos + 1; j <= wavesCount; j++) {
-				waves [j - 1] = waves [j];
-			}
+		}
+		for (int j = pos + 1; j <= wavesCount; j++) {
+			waves [j - 1] = waves [j];
 		}
 	}
 
@@ -130,7 +133,6 @@ public class GameController : MonoBehaviour
 
 		WaveController newWaveController = newWave.GetComponent<WaveController> ();
 		int gapNum = Random.Range (1, 4);
-		//Debug.Log (gapNum);
 		Vector2[] gaps = new Vector2[gapNum];
 		float slice = 360f / (float)gapNum;
 
@@ -141,13 +143,10 @@ public class GameController : MonoBehaviour
 			gaps [i].y = gaps [i].x + Mathf.Min ((minGapAngle + Random.value * (maxGapAngle - minGapAngle)), sliceEnd);
 
 			gaps [i] *= Mathf.PI / 180f;
-
-			//Debug.Log (gaps [i]);
 		}
 
 		newWaveController.Initalize (radius, gaps);
 
-		Debug.Log (wavesCount);
 		waves [wavesCount++] = newWave;
 	}
 }

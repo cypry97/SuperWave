@@ -41,7 +41,7 @@ public class PlayerController : MonoBehaviour
 		angle += Input.GetAxis ("Player1") * angularVelocity;
 		if (angle > 2 * Mathf.PI) {
 			angle -= 2 * Mathf.PI;
-		} else if (angle < -2 * Mathf.PI) {
+		} else if (angle < 0f	) {
 			angle += 2 * Mathf.PI;
 		}
 		transform.rotation = Quaternion.Euler (new Vector3 (0f, 0f, angle * 180f / Mathf.PI));
@@ -50,6 +50,5 @@ public class PlayerController : MonoBehaviour
 		} else if (Input.GetAxis ("Player1") < 0f) {
 			GetComponent<SpriteRenderer> ().flipY = false;
 		}
-		//Debug.Log (angle);
 	}
 }

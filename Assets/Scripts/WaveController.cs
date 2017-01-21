@@ -6,6 +6,13 @@ public class WaveController : MonoBehaviour
 	[SerializeField]
 	private GameObject wavePointPrefab;
 
+	[SerializeField]
+	private float delta = 1f/64f;
+
+
+	//public bool debug = false;
+
+
 	private float radius;
 	private Vector2[] gaps;
 	private float rotationSpeed;
@@ -94,9 +101,14 @@ public class WaveController : MonoBehaviour
 
 	public bool checkPosition (float angle)
 	{
+		/*if (debug) {
+			debug = true;
+		}*/
+
+
 		foreach (Vector2 gap in gaps) {
-			if (angle >= gap.x && angle <= gap.y) {
-				Debug.Log (gap.x.ToString () + " " + angle.ToString () + " " + gap.y.ToString ());
+			if (angle >= gap.x + delta && angle <= gap.y - delta) {
+				//Debug.Log (gap.x.ToString () + " " + angle.ToString () + " " + gap.y.ToString ());
 				return true;
 			}
 		}
