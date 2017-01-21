@@ -22,6 +22,10 @@ public class GameController : MonoBehaviour
 	[SerializeField]
 	private float maxGapAngle = 60f;
 	//in degrees
+	[SerializeField]
+	private float minWaveSeparation = .75f;
+	[SerializeField]
+	private float maxWaveSeparation = 1.5f;
 
 	[SerializeField]
 	private GameObject player1Prefab;
@@ -33,18 +37,18 @@ public class GameController : MonoBehaviour
 	private GameObject vortexPrefab;
 
 	//private Queue waves = new Queue(); //Stores the waves, in the order they are created
-	private float lastSpawnTime;
+	private float beginTime;
 	private GameObject[] waves;
 	private int wavesCount;
 	//Stores the waves (new ones are the end)
 	private GameObject[] players;
-	//Stores the players
+	private float distanceToLastWave;
 
 	// Use this for initialization
 	void Start ()
 	{
 		currentSpeed = initialSpeed;
-		lastSpawnTime = Time.time;
+		beginTime = Time.time;
 		wavesCount = 0;
 		//Spawn players on the map
 		players = new GameObject[2];
@@ -66,22 +70,27 @@ public class GameController : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
+		currentSpeed = initialSpeed + Mathf.Pow (rampUpRate * (Time.time - beginTime) / 60f, 2f);
+
 		UpdatePositions ();
 		TrySpawnWave ();
 	}
 
 	void TrySpawnWave ()
 	{
-		if (Time.time - lastSpawnTime > spawnTimer) {
-			lastSpawnTime = Time.time;
-			MakeWave ();
+		float distance = waves [wavesCount - 1].GetComponent<WaveController> ().GetRadius ();
+		if (distance > minWaveSeparation) {
+			if (Random.value * maxWaveSeparation - distance < 0f) {
+				MakeWave ();
+			}
 		}
-
 	}
 
 	void UpdatePositions ()
 	{
 		//Update the waves
+		Debug.Log(wavesCount);
+
 		float currentTime = Time.deltaTime;
 		for (int i = 0; i < wavesCount; i++) {
 			WaveController waveController = waves [i].GetComponent<WaveController> ();
@@ -129,6 +138,7 @@ public class GameController : MonoBehaviour
 		for (int j = pos + 1; j <= wavesCount; j++) {
 			waves [j - 1] = waves [j];
 		}
+		waves [wavesCount] = null;
 	}
 
 	void MakeWave (float radius = .125f)
@@ -151,6 +161,7 @@ public class GameController : MonoBehaviour
 
 		newWaveController.Initalize (radius, gaps);
 
-		waves [wavesCount++] = newWave;
+		waves [wavesCount] = newWave;
+		wavesCount++;
 	}
 }
