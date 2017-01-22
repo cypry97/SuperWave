@@ -1,8 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
+	public GameObject lText, rText;
+	public GameObject victoryScreen;
+	private Text leftText, rightText;
+	public GameObject mainMenu;
+	public AudioSource backgroundSound;
+	public AudioSource waveSound;
+
 	[SerializeField]
 	private float initialSpeed = 1f;
 	[SerializeField]
@@ -21,6 +29,7 @@ public class GameController : MonoBehaviour
 	private float maxWaveSeparation = 1.5f;
 	[SerializeField]
 	private float gameTime = 2f;
+
 
 	[SerializeField]
 	private GameObject player1Prefab;
@@ -61,6 +70,13 @@ public class GameController : MonoBehaviour
 
 		inactiveWaves = new WaveStorage[16];
 		inactiveWavesCount = 0;
+
+		leftText = lText.GetComponent<Text> ();
+		rightText = rText.GetComponent<Text> ();
+		victoryScreen.SetActive (false);
+
+		backgroundSound = gameObject.GetComponents<AudioSource> () [0];
+		waveSound = gameObject.GetComponents<AudioSource> () [1];
 	}
 
 	public void GameStart ()
@@ -89,6 +105,25 @@ public class GameController : MonoBehaviour
 	{
 		isRunning = false;
 
+		Text text = victoryScreen.transform.FindChild("Text").GetComponent<Text> ();
+		if (players [0].GetGameObject () && players[1].GetGameObject()) {
+			text.text = "DRAW";
+			text.color = Color.yellow;
+		}
+		if (players [0].GetGameObject ()) {
+			text.text = "GREEN WINS";
+			text.color = Color.green;
+		}
+		else if (players[1].GetGameObject()){
+			text.text = "RED WINS";
+			text.color = Color.red;
+		}
+		else {
+			text.text = "DRAW";
+			text.color = Color.yellow;
+		}
+		victoryScreen.SetActive (true);
+
 		foreach (PlayerStorage p in players) {
 			if (p.GetGameObject ()) {
 				Destroy (p.GetGameObject ());
@@ -103,8 +138,14 @@ public class GameController : MonoBehaviour
 			inactiveWaves [inactiveWavesCount].GetWaveController ().ResetRadius (.125f);
 			inactiveWavesCount++;
 		}
+
+		Invoke ("RestoreMainMenu", 5f); 
 	}
-	
+
+	void RestoreMainMenu() {
+		mainMenu.GetComponent<QuitApplication> ().Quit ();
+	}
+
 	// Update is called once per frame
 	void Update ()
 	{
@@ -112,6 +153,14 @@ public class GameController : MonoBehaviour
 			return;
 		}
 
+		if (Time.time - beginTime - 3f > gameTime * 60f) {
+			GameEnd ();
+			return;
+		}
+
+		if (!backgroundSound.isPlaying) {
+			backgroundSound.Play ();
+		}
 
 		float multiplier = 1f + Mathf.Pow (rampUpRate * (Time.time - beginTime) / 60f, 2f);
 		//multiplier = 1f;
@@ -130,6 +179,10 @@ public class GameController : MonoBehaviour
 				GameEnd ();
 			}
 		}
+
+
+		leftText.text = "Time Remaining\n" + ((int)(120f - Time.time + beginTime +3f)).ToString() + "s";
+		rightText.text = leftText.text;
 	}
 
 	void TrySpawnWave ()
@@ -163,7 +216,8 @@ public class GameController : MonoBehaviour
 			if (p.GetGameObject ()) {
 				float angle = p.GetPlayerController ().getAngle ();
 				int pos = p.GetPlayerController ().GetWavePos ();
-				if (waves [pos].GetWaveController ().checkPosition (angle) && p.GetPlayerController ().GetWavePos () < activeWavesCount - 1) {
+				if (waves [pos].GetWaveController ().checkPosition (angle) && p.GetPlayerController ().GetWavePos () < activeWavesCount - 1 && 
+					waves[pos + 1].GetWaveController().GetRadius() >= .5f) {
 					p.GetPlayerController ().SetWavePos (p.GetPlayerController ().GetWavePos () + 1);
 					pos++;
 				}
@@ -253,6 +307,8 @@ public class GameController : MonoBehaviour
 
 		waves [activeWavesCount] = new WaveStorage (newWave, newWaveController);
 		activeWavesCount++;
+
+		waveSound.Play ();
 	}
 
 	void AttachVortex (int pos)

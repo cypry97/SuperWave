@@ -11,6 +11,8 @@ public class PlayerController : MonoBehaviour
 	private float angularVelocity;
 	private float angularSpeedMultiplier = 1f;
 
+	private AudioSource audio;
+
 	public Animator animator;
 
 	public void Initialize (int wId, float ang, string iN, float aV)
@@ -43,6 +45,7 @@ public class PlayerController : MonoBehaviour
 	void Start ()
 	{
 		animator = gameObject.GetComponent<Animator> ();
+		audio = GetComponent<AudioSource> ();
 	}
 	
 	// Update is called once per frame
@@ -55,14 +58,28 @@ public class PlayerController : MonoBehaviour
 			angle += 2 * Mathf.PI;
 		}
 		transform.rotation = Quaternion.Euler (new Vector3 (0f, 0f, angle * 180f / Mathf.PI));
-		if(animator.isActiveAndEnabled)
-			animator.SetBool ("isMoving", true);
+
 		if (Input.GetAxis (inputName) > 0f) {
 			GetComponent<SpriteRenderer> ().flipY = true;
+			if (animator.isActiveAndEnabled) {
+				animator.SetBool ("isMoving", true);
+			}
+			if (!audio.isPlaying) {
+				audio.Play ();
+			}
 		} else if (Input.GetAxis (inputName) < 0f) {
 			GetComponent<SpriteRenderer> ().flipY = false;
+			if (animator.isActiveAndEnabled) {
+				animator.SetBool ("isMoving", true);
+			}
+			if (!audio.isPlaying) {
+				audio.Play ();
+			}
 		} else if (animator.isActiveAndEnabled){
 			animator.SetBool ("isMoving", false);
+			if (audio.isPlaying) {
+				audio.Stop();
+			}
 		}
 	}
 }
