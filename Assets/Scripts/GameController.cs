@@ -21,7 +21,6 @@ public class GameController : MonoBehaviour
 	private float maxWaveSeparation = 1.5f;
 	[SerializeField]
 	private float gameTime = 2f;
-	// in minutes
 
 	[SerializeField]
 	private GameObject player1Prefab;
@@ -33,6 +32,7 @@ public class GameController : MonoBehaviour
 	private GameObject vortexPrefab;
 
 
+	private bool isRunning = false;
 	private float beginTime;
 	private WaveStorage[] waves;
 	private int activeWavesCount;
@@ -46,26 +46,15 @@ public class GameController : MonoBehaviour
 	// Use this for initialization
 	void Start ()
 	{
-		currentSpeed = initialSpeed; 
+		//currentSpeed = initialSpeed; 
 		beginTime = Time.time;
 		activeWavesCount = 0;
 		//Spawn players on the map
-		players = new PlayerStorage[2];
-		GameObject player1 = (GameObject)Instantiate (player1Prefab, new Vector3 (), Quaternion.identity);
-		PlayerController player1Controller = player1.GetComponent<PlayerController> ();
-		player1Controller.Initialize (1, 0f, "Player1", playerAngularVelocity);
 
-		GameObject player2 = (GameObject)Instantiate (player2Prefab, new Vector3 (), Quaternion.identity);
-		PlayerController player2Controller = player2.GetComponent<PlayerController> ();
-		player2Controller.Initialize (1, 180f, "Player2", playerAngularVelocity);
-		players [0] = new PlayerStorage (player1, player1Controller);
-		players [1] = new PlayerStorage (player2, player2Controller);
+		players = new PlayerStorage[2];
 
 		//Spawn waves
 		waves = new WaveStorage[16]; //There shouldn't be more than 16 waves at the same time
-		MakeWave (3f);
-		MakeWave (2f);
-		MakeWave (1f);
 
 		vortexes = new VortexStorage[16];
 		vortexCount = 0;
@@ -73,10 +62,57 @@ public class GameController : MonoBehaviour
 		inactiveWaves = new WaveStorage[16];
 		inactiveWavesCount = 0;
 	}
+
+	public void GameStart ()
+	{
+		isRunning = true;
+		beginTime = Time.time;
+
+		GameObject player1 = (GameObject)Instantiate (player1Prefab, new Vector3 (), Quaternion.identity);
+		PlayerController player1Controller = player1.GetComponent<PlayerController> ();
+		player1Controller.Initialize (1, 0f, "Player1", playerAngularVelocity);
+
+		GameObject player2 = (GameObject)Instantiate (player2Prefab, new Vector3 (), Quaternion.identity);
+		PlayerController player2Controller = player2.GetComponent<PlayerController> ();
+		player2Controller.Initialize (1, 180f, "Player2", playerAngularVelocity);
+
+		players [0] = new PlayerStorage (player1, player1Controller);
+		players [1] = new PlayerStorage (player2, player2Controller);
+
+		MakeWave (3f);
+		MakeWave (2f);
+		MakeWave (1f);
+		UpdatePositions ();
+	}
+
+	public void GameEnd ()
+	{
+		isRunning = false;
+
+		foreach (PlayerStorage p in players) {
+			if (p.GetGameObject ()) {
+				Destroy (p.GetGameObject ());
+			}
+		}
+		for (int i = 0; i < vortexCount; i++) {
+			Destroy (vortexes [i].GetGameObject ());
+		}
+
+		for (int i = 0; i < activeWavesCount; i++) {
+			inactiveWaves [inactiveWavesCount] = waves [i];
+			inactiveWaves [inactiveWavesCount].GetWaveController ().ResetRadius (.125f);
+			inactiveWavesCount++;
+		}
+	}
 	
 	// Update is called once per frame
 	void Update ()
 	{
+		if (!isRunning || Time.time - beginTime <= 3f) {
+			return;
+		}
+
+
 		float multiplier = 1f + Mathf.Pow (rampUpRate * (Time.time - beginTime) / 60f, 2f);
 		//multiplier = 1f;
 		currentSpeed = initialSpeed * multiplier;
@@ -91,7 +127,7 @@ public class GameController : MonoBehaviour
 
 		foreach (PlayerStorage p in players) {
 			if (!p.GetGameObject ()) {
-				
+				GameEnd ();
 			}
 		}
 	}
