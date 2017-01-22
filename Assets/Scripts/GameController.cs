@@ -40,6 +40,8 @@ public class GameController : MonoBehaviour
 	private float distanceToLastWave;
 	private VortexStorage[] vortexes;
 	private int vortexCount;
+	private WaveStorage[] inactiveWaves;
+	private int inactiveWavesCount;
 
 	// Use this for initialization
 	void Start ()
@@ -67,6 +69,9 @@ public class GameController : MonoBehaviour
 
 		vortexes = new VortexStorage[16];
 		vortexCount = 0;
+
+		inactiveWaves = new WaveStorage[16];
+		inactiveWavesCount = 0;
 	}
 	
 	// Update is called once per frame
@@ -137,7 +142,11 @@ public class GameController : MonoBehaviour
 	{
 		//Move every wafe after it forward
 
-		Destroy (waves [pos].GetGameObject ());
+		//Destroy (waves [pos].GetGameObject ());
+		inactiveWaves [inactiveWavesCount] = waves [pos];
+		inactiveWaves [inactiveWavesCount].GetWaveController ().ResetRadius (.125f);
+		inactiveWavesCount++;
+
 		activeWavesCount--;
 		foreach (PlayerStorage p in players) {
 			if (p.GetGameObject ()) {
@@ -173,9 +182,18 @@ public class GameController : MonoBehaviour
 
 	void MakeWave (float radius = .125f)
 	{
-		GameObject newWave = (GameObject)Instantiate (wavePrefab);
+		GameObject newWave;
+		WaveController newWaveController;
 
-		WaveController newWaveController = newWave.GetComponent<WaveController> ();
+		if (inactiveWavesCount > 1) {
+			newWave = inactiveWaves [inactiveWavesCount - 1].GetGameObject ();
+			newWaveController = inactiveWaves [inactiveWavesCount - 1].GetWaveController ();
+			inactiveWavesCount--;
+		} else {
+			newWave = (GameObject)Instantiate (wavePrefab);
+			newWaveController = newWave.GetComponent<WaveController> ();
+		}
+
 		int gapNum = Random.Range (1, 4);
 		Vector2[] gaps = new Vector2[gapNum];
 		float slice = 360f / (float)gapNum;
@@ -207,7 +225,6 @@ public class GameController : MonoBehaviour
 		int count = 1;
 		while (count <= maxTries) {
 			float angle = Random.value * Mathf.PI * 2;
-			Debug.Log (angle);
 			if (!waves [pos].GetWaveController ().checkPosition (angle) && !waves [pos - 1].GetWaveController ().checkPosition (angle)) {
 				GameObject newVortex = (GameObject)Instantiate (vortexPrefab);
 				VortexController newVortexController = newVortex.GetComponent<VortexController> ();
