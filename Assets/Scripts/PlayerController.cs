@@ -16,12 +16,12 @@ public class PlayerController : MonoBehaviour
 		inputName = iN;
 	}
 
-	public int GetWaveId ()
+	public int GetWavePos ()
 	{
 		return waveId;
 	}
 
-	public void SetWaveId (int id)
+	public void SetWavePos (int id)
 	{
 		waveId = id;
 	}
