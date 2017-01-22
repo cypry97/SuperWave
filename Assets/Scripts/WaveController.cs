@@ -101,11 +101,6 @@ public class WaveController : MonoBehaviour
 
 	public bool checkPosition (float angle)
 	{
-		/*if (debug) {
-			debug = true;
-		}*/
-
-
 		foreach (Vector2 gap in gaps) {
 			if (angle >= gap.x + delta && angle <= gap.y - delta) {
 				//Debug.Log (gap.x.ToString () + " " + angle.ToString () + " " + gap.y.ToString ());

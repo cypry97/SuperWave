@@ -4,16 +4,19 @@ using System.Collections;
 public class PlayerController : MonoBehaviour
 {
 
-	public float angularVelocity = 0.0625f;
+	//public float angularVelocity = 0.0625f;
 	private int waveId;
 	private float angle;
 	private string inputName;
+	private float angularVelocity;
+	private float angularSpeedMultiplier = 1f;
 
-	public void Initialize (int wId, float ang, string iN)
+	public void Initialize (int wId, float ang, string iN, float aV)
 	{
 		waveId = wId;
 		angle = ang * Mathf.PI / 180f;
 		inputName = iN;
+		angularVelocity = aV;
 	}
 
 	public int GetWavePos ()
@@ -31,6 +34,10 @@ public class PlayerController : MonoBehaviour
 		return angle;
 	}
 
+	public void SetMultiplier(float newMultiplier){
+		angularSpeedMultiplier = newMultiplier;
+	}
+
 	// Use this for initialization
 	void Start ()
 	{
@@ -40,7 +47,7 @@ public class PlayerController : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
-		angle += Input.GetAxis (inputName) * angularVelocity;
+		angle += Input.GetAxis (inputName) * angularVelocity * angularSpeedMultiplier;
 		if (angle > 2 * Mathf.PI) {
 			angle -= 2 * Mathf.PI;
 		} else if (angle < 0f	) {

@@ -3,23 +3,25 @@ using System.Collections;
 
 public class GameController : MonoBehaviour
 {
-	//Editable in the editor
 	[SerializeField]
-	private float initialSpeed = 0.0625f;
+	private float initialSpeed = 1f;
+	[SerializeField]
+	private float playerAngularVelocity = 1f;
 	[SerializeField]
 	private float rampUpRate = 1f;
 	[SerializeField]
 	private float currentSpeed;
 	[SerializeField]
 	private float minGapAngle = 30f;
-	//in degrees
 	[SerializeField]
 	private float maxGapAngle = 60f;
-	//in degrees
 	[SerializeField]
 	private float minWaveSeparation = .75f;
 	[SerializeField]
 	private float maxWaveSeparation = 1.5f;
+	[SerializeField]
+	private float gameTime = 2f;
+	// in minutes
 
 	[SerializeField]
 	private GameObject player1Prefab;
@@ -33,11 +35,11 @@ public class GameController : MonoBehaviour
 
 	private float beginTime;
 	private WaveStorage[] waves;
-	//private GameObject[] waves;
 	private int activeWavesCount;
-	//Stores the waves (new ones are the end)
 	private PlayerStorage[] players;
 	private float distanceToLastWave;
+	private VortexStorage[] vortexes;
+	private int vortexCount;
 
 	// Use this for initialization
 	void Start ()
@@ -49,11 +51,11 @@ public class GameController : MonoBehaviour
 		players = new PlayerStorage[2];
 		GameObject player1 = (GameObject)Instantiate (player1Prefab, new Vector3 (), Quaternion.identity);
 		PlayerController player1Controller = player1.GetComponent<PlayerController> ();
-		player1Controller.Initialize (0, 0f, "Player1");
+		player1Controller.Initialize (0, 0f, "Player1", playerAngularVelocity);
 
 		GameObject player2 = (GameObject)Instantiate (player2Prefab, new Vector3 (), Quaternion.identity);
 		PlayerController player2Controller = player2.GetComponent<PlayerController> ();
-		player2Controller.Initialize (0, 180f, "Player2");
+		player2Controller.Initialize (0, 180f, "Player2", playerAngularVelocity);
 		players [0] = new PlayerStorage (player1, player1Controller);
 		players [1] = new PlayerStorage (player2, player2Controller);
 
@@ -62,12 +64,22 @@ public class GameController : MonoBehaviour
 		MakeWave (3f);
 		MakeWave (2f);
 		MakeWave (1f);
+
+		vortexes = new VortexStorage[16];
+		vortexCount = 0;
 	}
 	
 	// Update is called once per frame
 	void Update ()
 	{
-		currentSpeed = initialSpeed + Mathf.Pow (rampUpRate * (Time.time - beginTime) / 60f, 2f);
+		float multiplier = 1f + Mathf.Pow (rampUpRate * (Time.time - beginTime) / 60f, 2f);
+		//multiplier = 1f;
+		currentSpeed = initialSpeed * multiplier;
+		foreach (PlayerStorage p in players) {
+			if (p.GetGameObject ()) {
+				p.GetPlayerController ().SetMultiplier (multiplier);
+			}
+		}
 
 		UpdatePositions ();
 		TrySpawnWave ();
@@ -79,6 +91,7 @@ public class GameController : MonoBehaviour
 		if (distance > minWaveSeparation) {
 			if (Random.value * maxWaveSeparation - distance < 0f) {
 				MakeWave ();
+				AttachVortex (activeWavesCount - 1);
 			}
 		}
 	}
@@ -88,7 +101,6 @@ public class GameController : MonoBehaviour
 		//Update the waves
 		float currentTime = Time.deltaTime;
 		for (int i = 0; i < activeWavesCount; i++) {
-			//WaveController waveController = waves [i].GetComponent<WaveController> ();
 			waves [i].GetWaveController ().IncreaseRadius (currentSpeed * currentTime);
 		}
 
@@ -102,18 +114,21 @@ public class GameController : MonoBehaviour
 
 		foreach (PlayerStorage p in players) {
 			if (p.GetGameObject ()) {
-				//PlayerController playerController = p.GetComponent<PlayerController> ();
 				float angle = p.GetPlayerController ().getAngle ();
-				//WaveController waveController = waves [playerController.GetWaveId ()].GetComponent<WaveController> ();
 				int pos = p.GetPlayerController ().GetWavePos ();
 				if (waves [pos].GetWaveController ().checkPosition (angle) && p.GetPlayerController ().GetWavePos () < activeWavesCount - 1) {
 					p.GetPlayerController ().SetWavePos (p.GetPlayerController ().GetWavePos () + 1);
 					pos++;
-					//waveController = waves [playerController.GetWaveId ()].GetComponent<WaveController> ();
 				}
 				float radius = waves [pos].GetWaveController ().GetRadius () + .375f;
 				p.GetGameObject ().transform.position = new Vector3 (Mathf.Cos (angle) * radius, Mathf.Sin (angle) * radius, 0f);
 			}
+		}
+
+		for (int i = 0; i < vortexCount; i++) {
+			float angle = vortexes [i].GetVortexController ().GetAngle ();
+			float radius = waves [vortexes [i].GetVortexController ().GetWavePos ()].GetWaveController ().GetRadius () + .125f;
+			vortexes [i].GetGameObject ().transform.position = new Vector3 (Mathf.Cos (angle) * radius, Mathf.Sin (angle) * radius, 0f);
 		}
 
 	}
@@ -125,15 +140,31 @@ public class GameController : MonoBehaviour
 		Destroy (waves [pos].GetGameObject ());
 		activeWavesCount--;
 		foreach (PlayerStorage p in players) {
-			if (p.GetGameObject()) {
-				int waveId = p.GetPlayerController().GetWavePos ();
+			if (p.GetGameObject ()) {
+				int waveId = p.GetPlayerController ().GetWavePos ();
 				if (waveId == pos) {
-					Destroy (p.GetGameObject());
+					Destroy (p.GetGameObject ());
 				} else if (waveId >= pos) {
-					p.GetPlayerController().SetWavePos (waveId - 1);
+					p.GetPlayerController ().SetWavePos (waveId - 1);
 				}
 			}
 		}
+
+		for (int i = 0; i < vortexCount; i++) {
+			int wavePos = vortexes [i].GetVortexController ().GetWavePos ();
+			if (wavePos == pos) {
+				Destroy (vortexes [i].GetGameObject ());
+				for (int j = i + 1; j < vortexCount; j++) {
+					vortexes [j - 1] = vortexes [j];
+				}
+				vortexCount--;
+				vortexes [vortexCount] = null;
+				i--;
+			} else if (wavePos >= pos) {
+				vortexes [i].GetVortexController ().SetWavePos (wavePos - 1);
+			}
+		}
+
 		for (int j = pos + 1; j <= activeWavesCount; j++) {
 			waves [j - 1] = waves [j];
 		}
@@ -162,5 +193,32 @@ public class GameController : MonoBehaviour
 
 		waves [activeWavesCount] = new WaveStorage (newWave, newWaveController);
 		activeWavesCount++;
+	}
+
+	void AttachVortex (int pos)
+	{
+		float chance = Random.value;
+		if (chance < (Time.time - beginTime) / (gameTime * 60f) + 0.03125f) {
+			return;
+		}
+
+		int maxTries = 3;
+
+		int count = 1;
+		while (count <= maxTries) {
+			float angle = Random.value * Mathf.PI * 2;
+			Debug.Log (angle);
+			if (!waves [pos].GetWaveController ().checkPosition (angle) && !waves [pos - 1].GetWaveController ().checkPosition (angle)) {
+				GameObject newVortex = (GameObject)Instantiate (vortexPrefab);
+				VortexController newVortexController = newVortex.GetComponent<VortexController> ();
+				newVortexController.Initialize (pos, angle);
+
+				vortexes [vortexCount] = new VortexStorage (newVortex, newVortexController);
+				vortexCount++;
+				count = 3;
+			}
+
+			count++;
+		}
 	}
 }
