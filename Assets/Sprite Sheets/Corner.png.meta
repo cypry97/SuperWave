@@ -1,15 +1,15 @@
 fileFormatVersion: 2
-guid: 0815bc9c394e9664cbdc9e2eec4338dc
-timeCreated: 1485082080
+guid: 3ca4cb453609727489c80778735a383a
+timeCreated: 1485082550
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
-    21300000: Edge_0
-    21300002: Edge_1
-    21300004: Edge_2
-    21300006: Edge_3
-    21300008: Edge_4
-    21300010: Edge_5
+    21300000: Corner_0
+    21300002: Corner_1
+    21300004: Corner_2
+    21300006: Corner_3
+    21300008: Corner_4
+    21300010: Corner_5
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -59,7 +59,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Edge_0
+      name: Corner_0
       rect:
         serializedVersion: 2
         x: 0
@@ -72,7 +72,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: Edge_1
+      name: Corner_1
       rect:
         serializedVersion: 2
         x: 16
@@ -85,7 +85,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: Edge_2
+      name: Corner_2
       rect:
         serializedVersion: 2
         x: 32
@@ -98,7 +98,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: Edge_3
+      name: Corner_3
       rect:
         serializedVersion: 2
         x: 48
@@ -111,7 +111,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: Edge_4
+      name: Corner_4
       rect:
         serializedVersion: 2
         x: 64
@@ -124,7 +124,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: Edge_5
+      name: Corner_5
       rect:
         serializedVersion: 2
         x: 80

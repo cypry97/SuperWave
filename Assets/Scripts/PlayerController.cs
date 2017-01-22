@@ -55,12 +55,13 @@ public class PlayerController : MonoBehaviour
 			angle += 2 * Mathf.PI;
 		}
 		transform.rotation = Quaternion.Euler (new Vector3 (0f, 0f, angle * 180f / Mathf.PI));
-		animator.SetBool ("isMoving", true);
+		if(animator.isActiveAndEnabled)
+			animator.SetBool ("isMoving", true);
 		if (Input.GetAxis (inputName) > 0f) {
 			GetComponent<SpriteRenderer> ().flipY = true;
 		} else if (Input.GetAxis (inputName) < 0f) {
 			GetComponent<SpriteRenderer> ().flipY = false;
-		} else {
+		} else if (animator.isActiveAndEnabled){
 			animator.SetBool ("isMoving", false);
 		}
 	}
