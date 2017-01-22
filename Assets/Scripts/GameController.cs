@@ -53,11 +53,11 @@ public class GameController : MonoBehaviour
 		players = new PlayerStorage[2];
 		GameObject player1 = (GameObject)Instantiate (player1Prefab, new Vector3 (), Quaternion.identity);
 		PlayerController player1Controller = player1.GetComponent<PlayerController> ();
-		player1Controller.Initialize (0, 0f, "Player1", playerAngularVelocity);
+		player1Controller.Initialize (1, 0f, "Player1", playerAngularVelocity);
 
 		GameObject player2 = (GameObject)Instantiate (player2Prefab, new Vector3 (), Quaternion.identity);
 		PlayerController player2Controller = player2.GetComponent<PlayerController> ();
-		player2Controller.Initialize (0, 180f, "Player2", playerAngularVelocity);
+		player2Controller.Initialize (1, 180f, "Player2", playerAngularVelocity);
 		players [0] = new PlayerStorage (player1, player1Controller);
 		players [1] = new PlayerStorage (player2, player2Controller);
 
