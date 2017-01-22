@@ -91,8 +91,7 @@ public class GameController : MonoBehaviour
 
 		foreach (PlayerStorage p in players) {
 			if (!p.GetGameObject ()) {
-				Debug.Log ("Game ended");
-				Debug.Break ();
+				
 			}
 		}
 	}
