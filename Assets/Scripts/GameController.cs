@@ -88,6 +88,13 @@ public class GameController : MonoBehaviour
 
 		UpdatePositions ();
 		TrySpawnWave ();
+
+		foreach (PlayerStorage p in players) {
+			if (!p.GetGameObject ()) {
+				Debug.Log ("Game ended");
+				Debug.Break ();
+			}
+		}
 	}
 
 	void TrySpawnWave ()
