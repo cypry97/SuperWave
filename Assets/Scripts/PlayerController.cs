@@ -11,6 +11,8 @@ public class PlayerController : MonoBehaviour
 	private float angularVelocity;
 	private float angularSpeedMultiplier = 1f;
 
+	public Animator animator;
+
 	public void Initialize (int wId, float ang, string iN, float aV)
 	{
 		waveId = wId;
@@ -38,10 +40,9 @@ public class PlayerController : MonoBehaviour
 		angularSpeedMultiplier = newMultiplier;
 	}
 
-	// Use this for initialization
 	void Start ()
 	{
-	
+		animator = gameObject.GetComponent<Animator> ();
 	}
 	
 	// Update is called once per frame
@@ -54,10 +55,13 @@ public class PlayerController : MonoBehaviour
 			angle += 2 * Mathf.PI;
 		}
 		transform.rotation = Quaternion.Euler (new Vector3 (0f, 0f, angle * 180f / Mathf.PI));
+		animator.SetBool ("isMoving", true);
 		if (Input.GetAxis (inputName) > 0f) {
 			GetComponent<SpriteRenderer> ().flipY = true;
 		} else if (Input.GetAxis (inputName) < 0f) {
 			GetComponent<SpriteRenderer> ().flipY = false;
+		} else {
+			animator.SetBool ("isMoving", false);
 		}
 	}
 }
